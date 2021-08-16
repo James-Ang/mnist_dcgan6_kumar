@@ -52,23 +52,23 @@ def glorot_init(shape):
 
 
 # Actually bias_weights() no need to be defined as function
-def bias_weights():
+# def bias_weights():
     
-    bias = {
-            "disc_H" : tf.Variable(glorot_init(shape = [disc_hidden_dim])),
-            "disc_final" : tf.Variable(glorot_init(shape = [1])),
-            "gen_H" : tf.Variable(glorot_init(shape = [gen_hidden_dim])),
-            "gen_final" : tf.Variable(glorot_init(shape = [image_dim])),
-        }
+bias = {
+        "disc_H" : tf.Variable(glorot_init(shape = [disc_hidden_dim])),
+        "disc_final" : tf.Variable(glorot_init(shape = [1])),
+        "gen_H" : tf.Variable(glorot_init(shape = [gen_hidden_dim])),
+        "gen_final" : tf.Variable(glorot_init(shape = [image_dim])),
+    }
+
+weights = {
+        "disc_H" : tf.Variable(glorot_init(shape = [image_dim, disc_hidden_dim])),
+        "disc_final" : tf.Variable(glorot_init(shape = [disc_hidden_dim, 1])),
+        "gen_H" : tf.Variable(glorot_init(shape = [z_noise_dim, gen_hidden_dim])),
+        "gen_final" : tf.Variable(glorot_init(shape = [gen_hidden_dim, image_dim])),
+    }
     
-    weights = {
-            "disc_H" : tf.Variable(glorot_init(shape = [image_dim, disc_hidden_dim])),
-            "disc_final" : tf.Variable(glorot_init(shape = [disc_hidden_dim, 1])),
-            "gen_H" : tf.Variable(glorot_init(shape = [z_noise_dim, gen_hidden_dim])),
-            "gen_final" : tf.Variable(glorot_init(shape = [gen_hidden_dim, image_dim])),
-        }
-    
-    return weights, bias
+    # return weights, bias
 
 
 # Discriminator
@@ -91,28 +91,28 @@ def generator(z, weights, bias):
 
 
 # Call
-def input_place_holder(z_noise_dim, image_dim):
+# def input_place_holder(z_noise_dim, image_dim):
     
-    Z_input = tf.placeholder(dtype=tf.float32, shape = [None, z_noise_dim], name = "noise_z")
-    X_input = tf.placeholder(dtype=tf.float32, shape = [None, image_dim], name = "real_input_x")
+Z_input = tf.placeholder(dtype=tf.float32, shape = [None, z_noise_dim], name = "noise_z")
+X_input = tf.placeholder(dtype=tf.float32, shape = [None, image_dim], name = "real_input_x")
     
-    return X_input, Z_input
+    # return X_input, Z_input
 
 # Call
-def building_network(X_input, Z_input, weights, bias):
+# def building_network(X_input, Z_input, weights, bias):
     
-    # Building Generator Network
-    with tf.name_scope("Generator"):
+# Building Generator Network
+with tf.name_scope("Generator"):
+    
+    output_gen = generator(Z_input, weights, bias)
+    
+# Building Discriminator Network
+with tf.name_scope("Discriminator"):
+    
+    real_logit, real_disc = discriminator(X_input, weights, bias)
+    fake_logit, fake_disc = discriminator(output_gen, weights, bias)
         
-        output_gen = generator(Z_input, weights, bias)
-        
-    # Building Discriminator Network
-    with tf.name_scope("Discriminator"):
-        
-        real_logit, real_disc = discriminator(X_input, weights, bias)
-        fake_logit, fake_disc = discriminator(output_gen, weights, bias)
-        
-    return real_logit, real_disc, fake_logit, fake_disc
+    # return real_logit, real_disc, fake_logit, fake_disc
 
 
 def loss(real_logit, real_disc, fake_logit, fake_disc):
