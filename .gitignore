@@ -1,3 +1,5 @@
 /__pycache__
 /MNIST_data
 .pylint.d
+/log
+/saved_events
