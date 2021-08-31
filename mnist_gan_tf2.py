@@ -10,11 +10,11 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL']='3'
 
 # import tensorflow as tf
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 # from keras.datasets import mnist
 import input_data
 tf.compat.v1.disable_eager_execution()
-tf.reset_default_graph()
+tf.compat.v1.reset_default_graph()
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -39,7 +39,7 @@ print(tf.__version__)
 # Training Parameters
 lr = 0.001
 batch_size = 128
-epochs = 300
+epochs = 10000
 
 # Network Params
 image_dim = 784 # 28*28 pixels
@@ -93,8 +93,8 @@ def main():
     # Call
     # def input_place_holder(z_noise_dim, image_dim):
     
-    Z_input = tf.placeholder(dtype=tf.float32, shape = [None, z_noise_dim], name = "noise_z")
-    X_input = tf.placeholder(dtype=tf.float32, shape = [None, image_dim], name = "real_input_x")
+    Z_input = tf.compat.v1.placeholder(dtype=tf.float32, shape = [None, z_noise_dim], name = "noise_z")
+    X_input = tf.compat.v1.placeholder(dtype=tf.float32, shape = [None, image_dim], name = "real_input_x")
     
         # return X_input, Z_input
     
@@ -102,12 +102,12 @@ def main():
     # def building_network(X_input, Z_input, weights, bias):
     
     # Building Generator Network
-    with tf.name_scope("Generator"):
+    with tf.compat.v1.name_scope("Generator"):
     
         output_gen = generator(Z_input, weights, bias)
     
     # Building Discriminator Network
-    with tf.name_scope("Discriminator"):
+    with tf.compat.v1.name_scope("Discriminator"):
     
         real_logit, real_disc = discriminator(X_input, weights, bias)
         fake_logit, fake_disc = discriminator(output_gen, weights, bias)
@@ -119,13 +119,13 @@ def main():
     
     delta = 0.0001 # to prevent log(0)
     
-    with tf.name_scope("Discriminator_loss"):
+    with tf.compat.v1.name_scope("Discriminator_loss"):
     
-        discriminator_loss = -tf.reduce_mean(tf.log(real_disc + delta) + tf.log(1. - fake_disc + delta))
+        discriminator_loss = -tf.reduce_mean(input_tensor=tf.math.log(real_disc + delta) + tf.math.log(1. - fake_disc + delta))
     
-    with tf.name_scope("Generator_loss"):
+    with tf.compat.v1.name_scope("Generator_loss"):
     
-        generator_loss = -tf.reduce_mean(tf.log(fake_disc + delta))
+        generator_loss = -tf.reduce_mean(input_tensor=tf.math.log(fake_disc + delta))
     
         # return discriminator_loss, generator_loss
     
@@ -133,10 +133,10 @@ def main():
     # def summary(discriminator_loss, generator_loss):
     
     # Discriminator - saving data (will call on every epoch later)
-    disc_loss_total = tf.summary.scalar(name = "Disc_Total_Loss", tensor = discriminator_loss)
+    disc_loss_total = tf.compat.v1.summary.scalar(name = "Disc_Total_Loss", tensor = discriminator_loss)
     
     # Generator - saving data (will call on every epoch later)
-    gen_loss_total = tf.summary.scalar(name = "Gen_Total_Loss", tensor = generator_loss)
+    gen_loss_total = tf.compat.v1.summary.scalar(name = "Gen_Total_Loss", tensor = generator_loss)
     
         # return disc_loss_total, gen_loss_total
     
@@ -162,10 +162,10 @@ def main():
     
     # def optimiser(lr, discriminator_loss, disc_var, generator_loss, gen_var):
     
-    with tf.name_scope("Optimiser_Discriminator"):
+    with tf.compat.v1.name_scope("Optimiser_Discriminator"):
     
         # https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/AdamOptimizer
-        disc_optimize = tf.train.AdamOptimizer(
+        disc_optimize = tf.compat.v1.train.AdamOptimizer(
                                             learning_rate = lr,
                                             name='Adam'
                                             ).minimize(
@@ -173,9 +173,9 @@ def main():
                                                 var_list = disc_var
                                                 )
     
-    with tf.name_scope("Optimiser_Generator"):
+    with tf.compat.v1.name_scope("Optimiser_Generator"):
     
-        gen_optimize = tf.train.AdamOptimizer(
+        gen_optimize = tf.compat.v1.train.AdamOptimizer(
                                             learning_rate = lr,
                                             name='Adam'
                                             ).minimize(
@@ -191,14 +191,14 @@ def main():
     mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
     
     # Initialize the Variables
-    init = tf.global_variables_initializer()
+    init = tf.compat.v1.global_variables_initializer()
     
-    with tf.Session() as sess:
+    with tf.compat.v1.Session() as sess:
     
         sess.run(init)
         # sess.run(disc_optimize)
         # Put writer in session if want to log data to tensorboard
-        writer = tf.summary.FileWriter("./log", sess.graph)
+        writer = tf.compat.v1.summary.FileWriter("./log", sess.graph)
     
         for epoch in range(epochs):
             # print(epoch)
